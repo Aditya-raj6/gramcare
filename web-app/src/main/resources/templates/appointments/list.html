@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>GramCare — Appointments</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Appointment & Consultation Management')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+
+      <div class="quick-actions">
+        <a class="btn" href="/appointments/new">+ Schedule Appointment</a>
+        <a class="btn secondary" href="/appointments">All</a>
+        <a class="btn secondary" href="/appointments?view=today">Today</a>
+        <a class="btn secondary" href="/appointments?view=upcoming">Upcoming</a>
+      </div>
+
+      <div class="card">
+        <table class="data-table">
+          <thead><tr><th>Date/Time</th><th>Resident ID</th><th>Reason</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr th:each="a : ${appointments}">
+              <td th:text="${@fmt.dt(a.appointmentDateTime)}">date</td>
+              <td th:text="${a.residentId}">1</td>
+              <td th:text="${a.reason}">Reason</td>
+              <td><span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(a.status)}" th:text="${a.status}">Status</span></td>
+              <td><a th:href="@{'/appointments/' + ${a.id}}">Open</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="empty-state" th:if="${appointments == null or #lists.isEmpty(appointments)}">No appointments found for this view.</p>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

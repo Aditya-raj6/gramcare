@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>GramCare — Something went wrong</title><link rel="stylesheet" th:href="@{/css/styles.css}"/></head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Request could not be completed')}"></div>
+    <div class="content">
+      <div class="alert alert-error" th:text="${errorMessage}">Error</div>
+      <p>Nothing was silently saved on your behalf. Go back to correct the form, or check that the backend service named above is running.</p>
+      <div class="btn-row">
+        <a class="btn secondary" href="javascript:history.back()">&larr; Go back</a>
+        <a class="btn" href="/dashboard">Dashboard</a>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+</body>
+</html>

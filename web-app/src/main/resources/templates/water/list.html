@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>GramCare — Water Quality</title><link rel="stylesheet" th:href="@{/css/styles.css}"/></head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Water & Public Health Monitoring')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+      <div class="alert alert-warning">
+        Flags below compare recorded measurements against the reference limits configured in this system
+        (pH 6.5–8.5, turbidity ≤ 5 NTU, residual chlorine ≥ 0.2 mg/L). A flag means "needs review" — it is not a
+        certified declaration that water is safe or unsafe to drink.
+      </div>
+      <div class="quick-actions"><a class="btn" href="/water-quality/new">+ Record Observation</a></div>
+      <div class="card">
+        <form class="filter-bar" method="get" th:action="@{/water-quality}">
+          <div class="form-group"><label>Village</label><input type="text" name="village" th:value="${villageFilter}"/></div>
+          <button class="btn secondary" type="submit">Filter</button>
+          <a class="btn secondary" href="/water-quality">Clear</a>
+        </form>
+        <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Date</th><th>Village</th><th>Source</th><th>pH</th><th>Turbidity (NTU)</th><th>Res. chlorine (mg/L)</th><th>Review</th><th></th></tr></thead>
+          <tbody>
+            <tr th:each="o : ${observations}">
+              <td th:text="${o.observationDate}"></td>
+              <td th:text="${o.village}"></td>
+              <td th:text="${o.waterSourceName}"></td>
+              <td th:text="${o.ph}"></td>
+              <td th:text="${o.turbidityNtu}"></td>
+              <td th:text="${o.residualChlorineMgL}"></td>
+              <td><span class="badge" th:classappend="${o.outOfRange} ? 'badge-danger' : 'badge-ok'" th:text="${o.reviewStatus}"></span></td>
+              <td><a th:href="@{'/water-quality/' + ${o.id}}">Open</a></td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <p class="empty-state" th:if="${observations == null or #lists.isEmpty(observations)}">No observations recorded.</p>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

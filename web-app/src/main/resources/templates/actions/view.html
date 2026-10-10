@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>GramCare — Action Item</title><link rel="stylesheet" th:href="@{/css/styles.css}"/></head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Action Item Details')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+      <p><a href="/actions">&larr; Back to Action Centre</a></p>
+      <div th:if="${action != null}">
+        <div class="card">
+          <h2 th:text="'#' + ${action.id} + ' — ' + ${action.title}"></h2>
+          <p th:text="${action.description}"></p>
+          <div class="form-grid">
+            <div><strong>Category:</strong> <span th:text="${action.category}"></span></div>
+            <div><strong>Village:</strong> <span th:text="${action.village} ?: '—'"></span></div>
+            <div><strong>Priority:</strong> <span class="badge" th:classappend="'prio-' + ${#strings.toLowerCase(action.priority)}" th:text="${action.priority}"></span></div>
+            <div><strong>Status:</strong> <span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(action.status)}" th:text="${action.status}"></span>
+                 <span class="badge badge-critical" th:if="${action.overdue}">Overdue</span></div>
+            <div><strong>Reported by:</strong> <span th:text="${action.reportedBy} ?: '—'"></span></div>
+            <div><strong>Created:</strong> <span th:text="${@fmt.dt(action.createdDate)}"></span></div>
+            <div><strong>Due:</strong> <span th:text="${action.dueDate} ?: '—'"></span></div>
+            <div><strong>Department:</strong> <span th:text="${action.assignedDepartment} ?: 'Unassigned'"></span></div>
+            <div><strong>Responsible person:</strong> <span th:text="${action.assignedPerson} ?: '—'"></span></div>
+            <div><strong>Source:</strong> <span th:text="${action.sourceService} + ' / ' + ${action.sourceReferenceType} + ' #' + ${action.sourceReferenceId}"></span></div>
+          </div>
+          <p th:if="${action.resolutionNotes}"><strong>Resolution notes:</strong> <span th:text="${action.resolutionNotes}"></span></p>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:18px;">
+          <div class="card">
+            <h3>Assign / reassign</h3>
+            <form method="post" th:action="@{'/actions/' + ${action.id} + '/assign'}" class="validated-form">
+              <div class="form-group"><label>Department *</label>
+                <select name="assignedDepartment" required="required">
+                  <option th:each="d : ${departments}" th:value="${d.departmentName}"
+                          th:text="${d.departmentName} + ' (suggested: ' + ${d.defaultAssignee} + ')'"
+                          th:selected="${d.departmentName == action.assignedDepartment}"></option>
+                </select></div>
+              <div class="form-group"><label>Responsible person *</label><input type="text" name="assignedPerson" required="required" th:value="${action.assignedPerson}" placeholder="Name of the person who will act"/></div>
+              <button class="btn" type="submit">Save Assignment</button>
+            </form>
+          </div>
+          <div class="card">
+            <h3>Update status</h3>
+            <form method="post" th:action="@{'/actions/' + ${action.id} + '/status'}" data-confirm="Record this status change?">
+              <div class="form-group"><label>New status</label>
+                <select name="status">
+                  <option th:each="s : ${actionStatuses}" th:value="${s}" th:text="${s}" th:selected="${s == action.status}"></option>
+                </select></div>
+              <div class="form-group"><label>Notes / resolution details</label><textarea name="notes" rows="3"></textarea></div>
+              <button class="btn" type="submit">Update Status</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>History</h3>
+          <table class="data-table"><thead><tr><th>When</th><th>By</th><th>From</th><th>To</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr th:each="h : ${history}">
+                <td th:text="${@fmt.dt(h.changedAt)}"></td><td th:text="${h.changedBy}"></td>
+                <td th:text="${h.previousStatus}"></td><td th:text="${h.newStatus}"></td><td th:text="${h.notes}"></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="empty-state" th:if="${history == null or #lists.isEmpty(history)}">No changes recorded yet.</p>
+        </div>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

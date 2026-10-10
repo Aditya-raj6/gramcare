@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Sidebar navigation. currentPath is injected by GlobalModelAdvice. -->
+<div th:fragment="sidebar" >
+  <aside class="sidebar">
+    <div class="brand">
+      GramCare
+      <small>One Village. One Connected Health &amp; Sanitation System.</small>
+    </div>
+    <nav>
+      <a class="nav-link" th:classappend="${currentPath == '/dashboard' or currentPath == '/'} ? 'active' : ''" href="/dashboard">📊 Dashboard</a>
+      <a class="nav-link" th:classappend="${currentPath != null and #strings.startsWith(currentPath,'/residents')} ? 'active' : ''" href="/residents">🧑‍🤝‍🧑 Residents</a>
+      <a class="nav-link" th:classappend="${currentPath != null and #strings.startsWith(currentPath,'/centres')} ? 'active' : ''" href="/centres">🏥 Health Centres</a>
+      <a class="nav-link" th:classappend="${currentPath != null and #strings.startsWith(currentPath,'/appointments')} ? 'active' : ''" href="/appointments">📅 Appointments</a>
+      <a class="nav-link" th:classappend="${currentPath != null and #strings.startsWith(currentPath,'/inventory')} ? 'active' : ''" href="/inventory">💊 Medicine Inventory</a>
+      <a class="nav-link" th:classappend="${currentPath != null and #strings.startsWith(currentPath,'/camps')} ? 'active' : ''" href="/camps">⛺ Health Camps</a>
+      <a class="nav-link" th:classappend="${currentPath != null and #strings.startsWith(currentPath,'/sanitation')} ? 'active' : ''" href="/sanitation">🧹 Sanitation</a>
+      <a class="nav-link" th:classappend="${currentPath != null and #strings.startsWith(currentPath,'/water-quality')} ? 'active' : ''" href="/water-quality">💧 Water Quality</a>
+      <a class="nav-link" th:classappend="${currentPath != null and #strings.startsWith(currentPath,'/actions')} ? 'active' : ''" href="/actions">✅ Action Centre</a>
+      <a class="nav-link" th:classappend="${currentPath != null and #strings.startsWith(currentPath,'/reports')} ? 'active' : ''" href="/reports">📄 Reports</a>
+    </nav>
+  </aside>
+</div>
+
+<!-- Top bar: page heading, current demo role, logout. pageTitle is set per-page. -->
+<div th:fragment="topbar(pageTitle)">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <button id="sidebarToggle" class="btn secondary" style="display:none;" aria-label="Toggle navigation">☰</button>
+      <h1 th:text="${pageTitle}">Page</h1>
+    </div>
+    <div class="topbar-right">
+      <span class="role-badge" th:if="${demoRole != null}" th:text="${demoRole}">Role</span>
+      <a class="logout-link" href="/logout">Log out</a>
+    </div>
+  </header>
+</div>
+
+<div th:fragment="footer">
+  <footer class="app-footer">
+    GramCare — Integrated Rural Health &amp; Sanitation Management. Demo build for hackathon evaluation; role selection is not production authentication.
+  </footer>
+</div>
+
+<!-- Reusable error banner for when a downstream microservice is unreachable. -->
+<div th:fragment="serviceErrorBanner">
+  <div class="alert alert-error" th:if="${serviceError != null}">
+    <strong>Some data could not be loaded.</strong>
+    <span th:text="${serviceError}"></span>
+    Please check that the relevant backend service is running, then refresh this page.
+  </div>
+</div>
+
+</body>
+</html>

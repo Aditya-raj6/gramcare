@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>GramCare — Health Centre</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Health Centre Details')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+
+      <div class="card">
+        <h2 th:text="${centre.name}">Name</h2>
+        <p><strong>Village:</strong> <span th:text="${centre.village}"></span> &nbsp; <strong>Type:</strong> <span th:text="${centre.centreType}"></span></p>
+        <p th:if="${centre.address}"><strong>Address:</strong> <span th:text="${centre.address}"></span></p>
+        <p><strong>Contact:</strong> <span th:text="${centre.contactPhone}"></span> <span th:if="${centre.contactEmail}"> · <span th:text="${centre.contactEmail}"></span></span></p>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:18px;">
+        <div class="card">
+          <h3>Healthcare Workers</h3>
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Role</th><th>Phone</th></tr></thead>
+            <tbody><tr th:each="w : ${workers}"><td th:text="${w.fullName}"></td><td th:text="${w.role}"></td><td th:text="${w.contactPhone}"></td></tr></tbody>
+          </table>
+          <p class="empty-state" th:if="${workers == null or #lists.isEmpty(workers)}">No workers added yet.</p>
+          <form method="post" th:action="@{'/centres/' + ${centre.id} + '/workers'}" class="validated-form" style="margin-top:12px;">
+            <div class="form-grid">
+              <div class="form-group"><label>Name *</label><input type="text" name="fullName" required="required"/></div>
+              <div class="form-group">
+                <label>Role</label>
+                <select name="role">
+                  <option value="DOCTOR">Doctor</option><option value="NURSE">Nurse</option><option value="ANM">ANM</option>
+                  <option value="ASHA_WORKER">ASHA Worker</option><option value="LAB_TECHNICIAN">Lab Technician</option>
+                  <option value="PHARMACIST">Pharmacist</option><option value="ADMIN_STAFF">Admin Staff</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Phone</label><input type="text" name="contactPhone"/></div>
+            </div>
+            <button class="btn secondary" type="submit">Add Worker</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Services Offered</h3>
+          <table class="data-table">
+            <thead><tr><th>Service</th><th>Description</th></tr></thead>
+            <tbody><tr th:each="s : ${services}"><td th:text="${s.serviceName}"></td><td th:text="${s.description}"></td></tr></tbody>
+          </table>
+          <p class="empty-state" th:if="${services == null or #lists.isEmpty(services)}">No services recorded yet.</p>
+          <form method="post" th:action="@{'/centres/' + ${centre.id} + '/services'}" class="validated-form" style="margin-top:12px;">
+            <div class="form-group"><label>Service name *</label><input type="text" name="serviceName" required="required"/></div>
+            <div class="form-group"><label>Description</label><input type="text" name="description"/></div>
+            <button class="btn secondary" type="submit">Add Service</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Operating Schedule</h3>
+        <table class="data-table">
+          <thead><tr><th>Day</th><th>Open</th><th>Close</th><th>Closed</th></tr></thead>
+          <tbody>
+            <tr th:each="s : ${schedules}">
+              <td th:text="${s.dayOfWeek}"></td><td th:text="${s.openTime}"></td><td th:text="${s.closeTime}"></td>
+              <td th:text="${s.closed} ? 'Yes' : 'No'"></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="empty-state" th:if="${schedules == null or #lists.isEmpty(schedules)}">No schedule configured yet.</p>
+        <form method="post" th:action="@{'/centres/' + ${centre.id} + '/schedules'}" class="validated-form" style="margin-top:12px;">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Day *</label>
+              <select name="dayOfWeek" required="required">
+                <option value="MONDAY">Monday</option><option value="TUESDAY">Tuesday</option><option value="WEDNESDAY">Wednesday</option>
+                <option value="THURSDAY">Thursday</option><option value="FRIDAY">Friday</option><option value="SATURDAY">Saturday</option><option value="SUNDAY">Sunday</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Opens at</label><input type="time" name="openTime"/></div>
+            <div class="form-group"><label>Closes at</label><input type="time" name="closeTime"/></div>
+            <div class="form-group"><label><input type="checkbox" name="closed"/> Closed this day</label></div>
+          </div>
+          <button class="btn secondary" type="submit">Add Schedule Entry</button>
+        </form>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

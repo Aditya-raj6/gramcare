@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>GramCare — New Replenishment Request</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('New Replenishment Request')}"></div>
+    <div class="content">
+      <div class="card" style="max-width:650px;">
+        <div class="alert alert-error form-validation-banner" style="display:none;"></div>
+        <form class="validated-form" method="post" th:action="@{/inventory/replenishment}">
+          <div class="form-group">
+            <label>Medicine *</label>
+            <select name="medicineId" required="required">
+              <option value="">Select medicine</option>
+              <option th:each="m : ${medicines}" th:value="${m.id}" th:text="${m.name} + ' (current: ' + ${m.totalQuantity} + ')'"></option>
+            </select>
+          </div>
+          <div class="form-group"><label>Requested quantity *</label><input type="number" name="requestedQuantity" required="required" min="1"/></div>
+          <div class="form-grid">
+            <div class="form-group"><label>Requested by</label><input type="text" name="requestedBy" th:value="${demoRole}"/></div>
+            <div class="form-group"><label>Village / health centre location</label><input type="text" name="village" placeholder="e.g. Anandpur"/></div>
+            <div class="form-group"><label>Priority</label>
+              <select name="priority"><option value="">Auto (High if below minimum)</option><option value="MEDIUM">Medium</option><option value="HIGH">High</option><option value="CRITICAL">Critical</option></select>
+            </div>
+          </div>
+          <p class="hint" style="font-size:0.8rem;color:#5b6b7c;">Submitting records the request and creates a linked Medicine Stock item in the Action Centre.</p>
+          <div class="form-group"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+          <div class="btn-row">
+            <button class="btn" type="submit">Submit Request</button>
+            <a class="btn secondary" href="/inventory/replenishment">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

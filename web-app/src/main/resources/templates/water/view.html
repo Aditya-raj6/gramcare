@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>GramCare — Water Observation</title><link rel="stylesheet" th:href="@{/css/styles.css}"/></head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Water-Quality Observation')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+      <div th:if="${obs != null}">
+        <div class="card">
+          <h2 th:text="${obs.waterSourceName} + ' — ' + ${obs.village}"></h2>
+          <p><strong>Date:</strong> <span th:text="${obs.observationDate}"></span> &nbsp; <strong>Recorded by:</strong> <span th:text="${obs.recordedBy}"></span></p>
+          <table class="data-table" style="max-width:600px;">
+            <thead><tr><th>Parameter</th><th>Recorded</th><th>Reference limit used</th></tr></thead>
+            <tbody>
+              <tr><td>pH</td><td th:text="${obs.ph} ?: '—'"></td><td th:text="${obs.phMin} + ' – ' + ${obs.phMax}"></td></tr>
+              <tr><td>Turbidity (NTU)</td><td th:text="${obs.turbidityNtu} ?: '—'"></td><td th:text="'≤ ' + ${obs.turbidityMaxNtu}"></td></tr>
+              <tr><td>Residual chlorine (mg/L)</td><td th:text="${obs.residualChlorineMgL} ?: '—'"></td><td th:text="'≥ ' + ${obs.residualChlorineMinMgL}"></td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:12px;"><strong>Review status:</strong>
+            <span class="badge" th:classappend="${obs.outOfRange} ? 'badge-danger' : 'badge-ok'" th:text="${obs.reviewStatus}"></span>
+            <a th:if="${obs.actionItemId != null}" th:href="@{'/actions/' + ${obs.actionItemId}}" th:text="' · Linked action #' + ${obs.actionItemId}"></a>
+          </p>
+          <div class="alert alert-warning" th:if="${obs.outOfRange and obs.actionItemId == null}">
+            Flagged, but not yet linked to the Action Centre (the Action Tracking Service was unreachable).
+            <form method="post" th:action="@{'/water-quality/' + ${obs.id} + '/retry-link'}" style="display:inline;"><button class="btn secondary" type="submit">Retry link</button></form>
+          </div>
+          <form method="post" th:action="@{'/water-quality/' + ${obs.id} + '/review-status'}" style="display:inline;">
+            <select name="reviewStatus">
+              <option th:each="s : ${waterReviewStatuses}" th:value="${s}" th:text="${s}" th:selected="${s == obs.reviewStatus}"></option>
+            </select>
+            <button class="btn secondary" type="submit">Update review status</button>
+          </form>
+          <p th:if="${obs.notes}"><strong>Notes:</strong> <span th:text="${obs.notes}"></span></p>
+        </div>
+        <div class="card">
+          <h3>Corrective actions</h3>
+          <table class="data-table"><thead><tr><th>Action</th><th>Assigned to</th><th>Due</th><th>Status</th><th>Follow-up notes</th></tr></thead>
+            <tbody><tr th:each="c : ${correctiveActions}"><td th:text="${c.actionDescription}"></td><td th:text="${c.assignedTo}"></td><td th:text="${c.dueDate}"></td><td th:text="${c.status}"></td><td th:text="${c.followUpNotes}"></td></tr></tbody>
+          </table>
+          <p class="empty-state" th:if="${correctiveActions == null or #lists.isEmpty(correctiveActions)}">No corrective actions assigned.</p>
+          <form method="post" th:action="@{'/water-quality/' + ${obs.id} + '/corrective-actions'}" class="validated-form">
+            <div class="form-group"><label>Corrective action *</label><input type="text" name="actionDescription" required="required" placeholder="e.g. Chlorinate tank and re-test in 48h"/></div>
+            <div class="form-grid">
+              <div class="form-group"><label>Assigned to</label><input type="text" name="assignedTo"/></div>
+              <div class="form-group"><label>Due date</label><input type="date" name="dueDate"/></div>
+            </div>
+            <div class="form-group"><label>Follow-up notes</label><input type="text" name="followUpNotes"/></div>
+            <button class="btn" type="submit">Assign Corrective Action</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

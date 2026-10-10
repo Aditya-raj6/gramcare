@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>GramCare — Health Camp</title><link rel="stylesheet" th:href="@{/css/styles.css}"/></head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Health Camp Details')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+
+      <div class="card">
+        <h2 th:text="${camp.campName}">Name</h2>
+        <p><strong>Village:</strong> <span th:text="${camp.village}"></span> &nbsp; <strong>Date:</strong> <span th:text="${camp.campDate}"></span> &nbsp; <strong>Location:</strong> <span th:text="${camp.location}"></span></p>
+        <form method="post" th:action="@{'/camps/' + ${camp.id} + '/status'}">
+          <select name="status" onchange="this.form.submit()">
+            <option value="PLANNED" th:selected="${camp.status == 'PLANNED'}">Planned</option>
+            <option value="ONGOING" th:selected="${camp.status == 'ONGOING'}">Ongoing</option>
+            <option value="COMPLETED" th:selected="${camp.status == 'COMPLETED'}">Completed</option>
+            <option value="CANCELLED" th:selected="${camp.status == 'CANCELLED'}">Cancelled</option>
+          </select>
+        </form>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:18px;">
+        <div class="card">
+          <h3>Assigned Staff</h3>
+          <table class="data-table"><thead><tr><th>Name</th><th>Role</th></tr></thead>
+            <tbody><tr th:each="s : ${staff}"><td th:text="${s.workerName}"></td><td th:text="${s.role}"></td></tr></tbody>
+          </table>
+          <p class="empty-state" th:if="${staff == null or #lists.isEmpty(staff)}">No staff assigned yet.</p>
+          <form method="post" th:action="@{'/camps/' + ${camp.id} + '/staff'}" class="validated-form" style="margin-top:10px;">
+            <div class="form-grid">
+              <div class="form-group"><label>Name *</label><input type="text" name="workerName" required="required"/></div>
+              <div class="form-group"><label>Role</label><input type="text" name="role" placeholder="e.g. Doctor"/></div>
+            </div>
+            <button class="btn secondary" type="submit">Assign Staff</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Beneficiaries</h3>
+          <table class="data-table"><thead><tr><th>Name</th><th>Age</th><th></th></tr></thead>
+            <tbody>
+              <tr th:each="b : ${beneficiaries}">
+                <td th:text="${b.beneficiaryName}"></td><td th:text="${b.age}"></td>
+                <td><a th:href="@{'/camps/beneficiaries/' + ${b.id} + '?campId=' + ${camp.id}}">Screenings / Follow-up</a></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="empty-state" th:if="${beneficiaries == null or #lists.isEmpty(beneficiaries)}">No beneficiaries registered yet.</p>
+          <form method="post" th:action="@{'/camps/' + ${camp.id} + '/beneficiaries'}" class="validated-form" style="margin-top:10px;">
+            <div class="form-grid">
+              <div class="form-group"><label>Name *</label><input type="text" name="beneficiaryName" required="required"/></div>
+              <div class="form-group"><label>Age</label><input type="number" name="age" min="0"/></div>
+              <div class="form-group"><label>Contact phone</label><input type="text" name="contactPhone"/></div>
+            </div>
+            <button class="btn secondary" type="submit">Register Beneficiary</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>GramCare — Medicine Detail</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Medicine Stock Detail')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+      <div class="alert alert-error" th:if="${param.error}" th:text="${param.error[0]}"></div>
+
+      <div class="card">
+        <h2 th:text="${medicine.name}">Name</h2>
+        <p><strong>Category:</strong> <span th:text="${medicine.category}"></span> &nbsp; <strong>Unit:</strong> <span th:text="${medicine.unitOfMeasure}"></span></p>
+        <p><strong>Usable stock:</strong> <span th:text="${medicine.totalQuantity}"></span> &nbsp;
+           <strong>Minimum level:</strong> <span th:text="${medicine.minimumStockLevel}"></span> &nbsp;
+           <span class="badge" th:classappend="${medicine.lowStock} ? 'badge-danger' : 'badge-ok'" th:text="${medicine.lowStock} ? 'LOW STOCK' : 'OK'"></span>
+        </p>
+        <a class="btn secondary" href="/inventory/replenishment/new" th:if="${medicine.lowStock}">Request replenishment</a>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:18px;">
+        <div class="card">
+          <h3>Stock In (new batch)</h3>
+          <form method="post" th:action="@{'/inventory/' + ${medicine.id} + '/stock-in'}" class="validated-form">
+            <div class="form-grid">
+              <div class="form-group"><label>Batch number *</label><input type="text" name="batchNumber" required="required"/></div>
+              <div class="form-group"><label>Quantity *</label><input type="number" name="quantity" required="required" min="1"/></div>
+              <div class="form-group"><label>Expiry date</label><input type="date" name="expiryDate"/></div>
+              <div class="form-group"><label>Received by</label><input type="text" name="performedBy"/></div>
+            </div>
+            <button class="btn" type="submit">Record Stock In</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Issue Stock</h3>
+          <form method="post" th:action="@{'/inventory/' + ${medicine.id} + '/issue'}" class="validated-form" data-confirm="Confirm issuing this stock?">
+            <div class="form-grid">
+              <div class="form-group"><label>Quantity *</label><input type="number" name="quantity" required="required" min="1"/></div>
+              <div class="form-group"><label>Reason</label><input type="text" name="reason" placeholder="e.g. Dispensed at OPD"/></div>
+              <div class="form-group"><label>Issued by</label><input type="text" name="performedBy"/></div>
+            </div>
+            <button class="btn secondary" type="submit">Issue Stock</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Batches</h3>
+        <table class="data-table">
+          <thead><tr><th>Batch</th><th>Quantity</th><th>Expiry</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr th:each="b : ${batches}">
+              <td th:text="${b.batchNumber}"></td>
+              <td th:text="${b.quantity}"></td>
+              <td th:text="${b.expiryDate} ?: '—'"></td>
+              <td><span class="badge" th:classappend="${b.expired} ? 'badge-danger' : 'badge-ok'" th:text="${b.expired} ? 'Expired — not issuable' : 'Usable'"></span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="empty-state" th:if="${#lists.isEmpty(batches)}">No batches received yet.</p>
+      </div>
+
+      <div class="card">
+        <h3>Stock Transaction History</h3>
+        <table class="data-table">
+          <thead><tr><th>Date</th><th>Type</th><th>Quantity</th><th>Reason</th><th>By</th></tr></thead>
+          <tbody>
+            <tr th:each="t : ${transactions}">
+              <td th:text="${@fmt.dt(t.transactionDate)}"></td>
+              <td th:text="${t.transactionType}"></td>
+              <td th:text="${t.quantity}"></td>
+              <td th:text="${t.reason}"></td>
+              <td th:text="${t.performedBy}"></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="empty-state" th:if="${transactions == null or #lists.isEmpty(transactions)}">No transactions yet.</p>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

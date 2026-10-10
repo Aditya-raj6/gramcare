@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>GramCare — Appointment</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Appointment Details')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+
+      <div class="card">
+        <p><strong>Resident ID:</strong> <span th:text="${appointment.residentId}"></span></p>
+        <p><strong>Date/time:</strong> <span th:text="${appointment.appointmentDateTime}"></span></p>
+        <p><strong>Reason:</strong> <span th:text="${appointment.reason}"></span></p>
+        <p><strong>Status:</strong> <span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(appointment.status)}" th:text="${appointment.status}"></span></p>
+        <form method="post" th:action="@{'/appointments/' + ${appointment.id} + '/status'}" style="display:inline;">
+          <select name="status" onchange="this.form.submit()">
+            <option value="SCHEDULED" th:selected="${appointment.status == 'SCHEDULED'}">Scheduled</option>
+            <option value="COMPLETED" th:selected="${appointment.status == 'COMPLETED'}">Completed</option>
+            <option value="CANCELLED" th:selected="${appointment.status == 'CANCELLED'}">Cancelled</option>
+            <option value="NO_SHOW" th:selected="${appointment.status == 'NO_SHOW'}">No-show</option>
+          </select>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>Consultations</h3>
+        <div th:each="c : ${consultations}" class="card" style="background:#f8fafb;">
+          <p><strong>Symptoms:</strong> <span th:text="${c.symptoms}"></span></p>
+          <p><strong>Diagnosis:</strong> <span th:text="${c.diagnosis}"></span></p>
+          <p><strong>Notes:</strong> <span th:text="${c.notes}"></span></p>
+
+          <h4>Treatments</h4>
+          <table class="data-table" th:if="${treatments[c.id] != null and !#lists.isEmpty(treatments[c.id])}">
+            <thead><tr><th>Medication</th><th>Dosage</th><th>Follow-up</th><th>Notes</th></tr></thead>
+            <tbody><tr th:each="t : ${treatments[c.id]}"><td th:text="${t.medicationPrescribed}"></td><td th:text="${t.dosageInstructions}"></td><td th:text="${t.followUpDate}"></td><td th:text="${t.notes}"></td></tr></tbody>
+          </table>
+
+          <h4>Add treatment</h4>
+          <form method="post" th:action="@{'/appointments/consultations/' + ${c.id} + '/treatments'}" class="validated-form">
+            <input type="hidden" name="appointmentId" th:value="${appointment.id}"/>
+            <div class="form-grid">
+              <div class="form-group"><label>Medication *</label><input type="text" name="medicationPrescribed" required="required"/></div>
+              <div class="form-group"><label>Dosage instructions</label><input type="text" name="dosageInstructions"/></div>
+              <div class="form-group"><label>Follow-up date</label><input type="date" name="followUpDate"/></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group"><label>Dispense from stock (optional)</label>
+                <select name="dispenseMedicineId">
+                  <option value="">Do not dispense</option>
+                  <option th:each="m : ${medicines}" th:value="${m.id}" th:text="${m.name} + ' — ' + ${m.totalQuantity} + ' available'"></option>
+                </select>
+                <span class="hint" th:if="${inventoryUnavailable}">Inventory service unavailable — stock cannot be dispensed right now.</span>
+              </div>
+              <div class="form-group"><label>Quantity to dispense</label><input type="number" name="dispenseQuantity" min="1"/></div>
+            </div>
+            <div class="form-group"><label>Notes</label><input type="text" name="notes"/></div>
+            <button class="btn secondary" type="submit">Add Treatment</button>
+          </form>
+        </div>
+        <p class="empty-state" th:if="${consultations == null or #lists.isEmpty(consultations)}">No consultation recorded yet.</p>
+
+        <h4 style="margin-top:16px;">Record consultation</h4>
+        <form method="post" th:action="@{'/appointments/' + ${appointment.id} + '/consultations'}" class="validated-form">
+          <div class="form-group"><label>Symptoms</label><input type="text" name="symptoms"/></div>
+          <div class="form-group"><label>Diagnosis</label><input type="text" name="diagnosis"/></div>
+          <div class="form-group"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+          <button class="btn" type="submit">Save Consultation</button>
+        </form>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

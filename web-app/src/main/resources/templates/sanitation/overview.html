@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>GramCare — Sanitation</title><link rel="stylesheet" th:href="@{/css/styles.css}"/></head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Sanitation Management')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+      <div class="quick-actions">
+        <a class="btn" href="/sanitation/complaints/new">+ Report Complaint</a>
+        <a class="btn secondary" href="/sanitation/facilities/new">+ Register Facility</a>
+      </div>
+
+      <div class="card">
+        <h3>Complaints &amp; Maintenance Requests</h3>
+        <table class="data-table">
+          <thead><tr><th>Title</th><th>Priority</th><th>Status</th><th>Assigned to</th><th>Action link</th><th></th></tr></thead>
+          <tbody>
+            <tr th:each="c : ${complaints}">
+              <td th:text="${c.title}">Title</td>
+              <td><span class="badge" th:classappend="'prio-' + ${#strings.toLowerCase(c.priority)}" th:text="${c.priority}"></span></td>
+              <td><span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(c.status)}" th:text="${c.status}"></span></td>
+              <td th:text="${c.assignedWorker} ?: '—'"></td>
+              <td>
+                <a th:if="${c.actionItemId != null}" th:href="@{'/actions/' + ${c.actionItemId}}" th:text="'Action #' + ${c.actionItemId}"></a>
+                <span th:if="${c.actionItemId == null}" class="badge badge-open">Not linked</span>
+              </td>
+              <td><a th:href="@{'/sanitation/complaints/' + ${c.id}}">Open</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="empty-state" th:if="${complaints == null or #lists.isEmpty(complaints)}">No complaints reported.</p>
+      </div>
+
+      <div class="card">
+        <h3>Sanitation Facilities</h3>
+        <table class="data-table">
+          <thead><tr><th>Facility</th><th>Type</th><th>Village</th><th>Cleanliness</th><th>Operational</th><th></th></tr></thead>
+          <tbody>
+            <tr th:each="f : ${facilities}">
+              <td th:text="${f.facilityName}"></td>
+              <td th:text="${f.facilityType}"></td>
+              <td th:text="${f.village}"></td>
+              <td th:text="${f.cleanlinessStatus}"></td>
+              <td th:text="${f.operational} ? 'Yes' : 'No'"></td>
+              <td><a th:href="@{'/sanitation/facilities/' + ${f.id}}">Inspections</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="empty-state" th:if="${facilities == null or #lists.isEmpty(facilities)}">No facilities registered.</p>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

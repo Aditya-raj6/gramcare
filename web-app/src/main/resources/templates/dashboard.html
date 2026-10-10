@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>GramCare — Dashboard</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Community Health Dashboard')}"></div>
+    <div class="content">
+
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="value" th:text="${summary.totalResidents} ?: 0">0</div>
+          <div class="label">Registered residents</div>
+        </div>
+        <div class="summary-card">
+          <div class="value" th:text="${summary.activeHealthCentres} ?: 0">0</div>
+          <div class="label">Active health centres</div>
+        </div>
+        <div class="summary-card">
+          <div class="value" th:text="${summary.todaysAppointments} ?: 0">0</div>
+          <div class="label">Today's appointments</div>
+        </div>
+        <div class="summary-card">
+          <div class="value" th:text="${summary.activeHealthCamps} ?: 0">0</div>
+          <div class="label">Active health camps</div>
+        </div>
+        <div class="summary-card" th:classappend="${summary.lowStockMedicines != null and summary.lowStockMedicines > 0} ? 'alert' : ''">
+          <div class="value" th:text="${summary.lowStockMedicines} ?: 0">0</div>
+          <div class="label">Medicines below minimum stock</div>
+        </div>
+        <div class="summary-card" th:classappend="${summary.pendingReplenishments != null and summary.pendingReplenishments > 0} ? 'warn' : ''">
+          <div class="value" th:text="${summary.pendingReplenishments} ?: 0">0</div>
+          <div class="label"><a href="/inventory/replenishment">Pending replenishment requests</a></div>
+        </div>
+        <div class="summary-card" th:classappend="${summary.openSanitationComplaints != null and summary.openSanitationComplaints > 0} ? 'warn' : ''">
+          <div class="value" th:text="${summary.openSanitationComplaints} ?: 0">0</div>
+          <div class="label">Open sanitation complaints</div>
+        </div>
+        <div class="summary-card" th:classappend="${summary.waterQualityIssues != null and summary.waterQualityIssues > 0} ? 'alert' : ''">
+          <div class="value" th:text="${summary.waterQualityIssues} ?: 0">0</div>
+          <div class="label">Water-quality issues needing review</div>
+        </div>
+        <div class="summary-card">
+          <div class="value" th:text="${summary.totalPendingActions} ?: 0">0</div>
+          <div class="label">Total pending actions</div>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <a class="btn" href="/sanitation/complaints/new">Report Sanitation Issue</a>
+        <a class="btn secondary" href="/inventory/replenishment/new">Request Medicine Replenishment</a>
+        <a class="btn secondary" href="/actions">Open Action Centre</a>
+      </div>
+
+      <div class="alert alert-warning" th:if="${downServices != null and !#lists.isEmpty(downServices)}">
+        Figures from <strong th:text="${#strings.listJoin(downServices, ', ')}"></strong> are unavailable (service not responding) and are shown as 0.
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1.3fr 1fr; gap:18px;">
+        <div class="card">
+          <h2>Pending Actions</h2>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>#</th><th>Title</th><th>Category</th><th>Village</th><th>Assigned</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr th:each="a : ${pendingActions}">
+                  <td th:text="${a.id}"></td>
+                  <td><a th:href="@{'/actions/' + ${a.id}}" th:text="${a.title}">Title</a>
+                      <span class="badge badge-critical" th:if="${a.overdue}">Overdue</span></td>
+                  <td th:text="${a.category}"></td>
+                  <td th:text="${a.village} ?: '—'"></td>
+                  <td th:text="${a.assignedDepartment} ?: 'Unassigned'"></td>
+                  <td><span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(a.status)}" th:text="${a.status}"></span></td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="empty-state" th:if="${#lists.isEmpty(pendingActions)}">No pending actions. Everything reported has been resolved.</p>
+          </div>
+          <p style="margin-bottom:0;"><a href="/actions">Open the full Action Centre &rarr;</a></p>
+        </div>
+
+        <div class="card">
+          <h2>High-Priority Issues</h2>
+          <table class="data-table">
+            <thead><tr><th>Title</th><th>Priority</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr th:each="a : ${highPriority}">
+                <td><a th:href="@{'/actions/' + ${a.id}}" th:text="${a.title}">Title</a></td>
+                <td><span class="badge" th:classappend="'prio-' + ${#strings.toLowerCase(a.priority)}" th:text="${a.priority}"></span></td>
+                <td><span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(a.status)}" th:text="${a.status}"></span></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="empty-state" th:if="${#lists.isEmpty(highPriority)}">No open high-priority issues.</p>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:18px;">
+        <div class="card">
+          <h2>Issues by Category</h2>
+          <div th:each="e : ${summary.actionsByCategory}" class="bar-row">
+            <span class="bar-label" th:text="${e.key}"></span>
+            <span class="bar-track"><span class="bar-fill" th:style="'width:' + ${e.value * 100 / maxCategory} + '%'"></span></span>
+            <span class="bar-value" th:text="${e.value}"></span>
+          </div>
+          <p class="empty-state" th:if="${summary.actionsByCategory == null}">No data.</p>
+        </div>
+        <div class="card">
+          <h2>Village-wise Pending Actions</h2>
+          <table class="data-table"><tbody>
+            <tr th:each="e : ${pendingByVillage}"><td th:text="${e.key}"></td><td th:text="${e.value}"></td></tr>
+          </tbody></table>
+          <p class="empty-state" th:if="${#maps.isEmpty(pendingByVillage)}">No pending actions.</p>
+        </div>
+        <div class="card">
+          <h2>Recent Activity</h2>
+          <table class="data-table">
+            <tbody>
+              <tr th:each="a : ${recentActivities}">
+                <td><a th:href="@{'/actions/' + ${a.id}}" th:text="${a.title}"></a><div style="font-size:0.75rem;color:#5b6b7c;" th:text="${a.category} + ' · ' + ${@fmt.dt(a.createdDate)}"></div></td>
+                <td><span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(a.status)}" th:text="${a.status}"></span></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="empty-state" th:if="${#lists.isEmpty(recentActivities)}">No recent activity yet.</p>
+        </div>
+      </div>
+
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

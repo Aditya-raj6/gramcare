@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>GramCare — Replenishment Requests</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Replenishment Requests')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+      <div class="quick-actions"><a class="btn" href="/inventory/replenishment/new">+ New Request</a></div>
+
+      <div class="card">
+        <table class="data-table">
+          <thead><tr><th>Medicine</th><th>Requested qty</th><th>Requested by</th><th>Village</th><th>Status</th><th>Created</th><th>Action item</th><th>Update</th></tr></thead>
+          <tbody>
+            <tr th:each="r : ${requests}">
+              <td th:text="${r.medicineName}">Medicine</td>
+              <td th:text="${r.requestedQuantity}">0</td>
+              <td th:text="${r.requestedBy}">By</td>
+              <td th:text="${r.village} ?: '—'"></td>
+              <td><span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(r.status)}" th:text="${r.status}">Status</span></td>
+              <td th:text="${@fmt.dt(r.createdAt)}">date</td>
+              <td>
+                <a th:if="${r.actionItemId != null}" th:href="@{'/actions/' + ${r.actionItemId}}" th:text="'#' + ${r.actionItemId}"></a>
+                <form th:if="${r.actionItemId == null}" method="post" th:action="@{'/inventory/replenishment/' + ${r.id} + '/retry-link'}" style="display:inline;">
+                  <span class="badge badge-open">Not linked</span> <button class="btn secondary" type="submit" style="padding:3px 8px;">Retry</button>
+                </form>
+              </td>
+              <td>
+                <form method="post" th:action="@{'/inventory/replenishment/' + ${r.id} + '/status'}" style="display:inline;">
+                  <select name="status" onchange="this.form.submit()">
+                    <option value="PENDING" th:selected="${r.status == 'PENDING'}">Pending</option>
+                    <option value="APPROVED" th:selected="${r.status == 'APPROVED'}">Approved</option>
+                    <option value="FULFILLED" th:selected="${r.status == 'FULFILLED'}">Fulfilled</option>
+                    <option value="REJECTED" th:selected="${r.status == 'REJECTED'}">Rejected</option>
+                  </select>
+                </form>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="empty-state" th:if="${requests == null or #lists.isEmpty(requests)}">No replenishment requests yet.</p>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

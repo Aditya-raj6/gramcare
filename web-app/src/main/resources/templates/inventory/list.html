@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>GramCare — Medicine Inventory</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Medicine Inventory')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+
+      <div class="quick-actions">
+        <a class="btn" href="/inventory/new">+ Add Medicine</a>
+        <a class="btn secondary" href="/inventory/replenishment">Replenishment Requests</a>
+        <a class="btn secondary" href="/inventory?lowStockOnly=true">Show Low Stock Only</a>
+        <a class="btn secondary" href="/inventory">Show All</a>
+      </div>
+
+      <div class="card">
+        <form class="filter-bar" method="get" th:action="@{/inventory}">
+          <div class="form-group"><label>Search by name</label><input type="text" name="name" th:value="${nameFilter}"/></div>
+          <button class="btn secondary" type="submit">Search</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <table class="data-table">
+          <thead><tr><th>Medicine</th><th>Category</th><th>Total stock</th><th>Min level</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr th:each="m : ${medicines}">
+              <td th:text="${m.name}">Name</td>
+              <td th:text="${m.category}">Category</td>
+              <td th:text="${m.totalQuantity}">0</td>
+              <td th:text="${m.minimumStockLevel}">0</td>
+              <td><span class="badge" th:classappend="${m.lowStock} ? 'badge-danger' : 'badge-ok'" th:text="${m.lowStock} ? 'Low Stock' : 'OK'">Status</span></td>
+              <td><a th:href="@{'/inventory/' + ${m.id}}">Manage</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="empty-state" th:if="${medicines == null or #lists.isEmpty(medicines)}">No medicines found.</p>
+      </div>
+
+      <div class="card">
+        <h3>Recent Stock Transactions</h3>
+        <table class="data-table">
+          <thead><tr><th>Date</th><th>Type</th><th>Quantity</th><th>Reason</th></tr></thead>
+          <tbody>
+            <tr th:each="t : ${recentTransactions}">
+              <td th:text="${@fmt.dt(t.transactionDate)}">date</td>
+              <td th:text="${t.transactionType}">Type</td>
+              <td th:text="${t.quantity}">0</td>
+              <td th:text="${t.reason}">Reason</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="empty-state" th:if="${recentTransactions == null or #lists.isEmpty(recentTransactions)}">No transactions recorded yet.</p>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

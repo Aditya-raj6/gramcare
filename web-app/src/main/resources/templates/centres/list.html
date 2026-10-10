@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>GramCare — Health Centres</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Health Centre Management')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+      <div class="quick-actions"><a class="btn" href="/centres/new">+ Register Health Centre</a></div>
+
+      <div class="card">
+        <form class="filter-bar" method="get" th:action="@{/centres}">
+          <div class="form-group"><label>Search by name</label><input type="text" name="name" th:value="${nameFilter}"/></div>
+          <div class="form-group"><label>Village</label><input type="text" name="village" th:value="${villageFilter}"/></div>
+          <button class="btn secondary" type="submit">Search</button>
+          <a class="btn secondary" href="/centres">Clear</a>
+        </form>
+      </div>
+
+      <div class="card">
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Village</th><th>Type</th><th>Phone</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr th:each="c : ${centres}">
+              <td th:text="${c.name}">Name</td>
+              <td th:text="${c.village}">Village</td>
+              <td th:text="${c.centreType}">Type</td>
+              <td th:text="${c.contactPhone}">Phone</td>
+              <td><span class="badge" th:classappend="${c.active} ? 'badge-ok' : 'badge-muted'" th:text="${c.active} ? 'Active' : 'Inactive'">Status</span></td>
+              <td><a th:href="@{'/centres/' + ${c.id}}">Manage</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="empty-state" th:if="${centres == null or #lists.isEmpty(centres)}">No health centres registered yet.</p>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

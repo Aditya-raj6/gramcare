@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>GramCare — Add Medicine</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Add Medicine')}"></div>
+    <div class="content">
+      <div class="card" style="max-width:650px;">
+        <div class="alert alert-error form-validation-banner" style="display:none;"></div>
+        <form class="validated-form" method="post" th:action="@{/inventory}">
+          <div class="form-grid">
+            <div class="form-group"><label>Medicine name *</label><input type="text" name="name" required="required"/></div>
+            <div class="form-group"><label>Generic name</label><input type="text" name="genericName"/></div>
+            <div class="form-group"><label>Category</label><input type="text" name="category" placeholder="e.g. Antibiotic"/></div>
+            <div class="form-group"><label>Unit of measure</label><input type="text" name="unitOfMeasure" value="units"/></div>
+            <div class="form-group"><label>Minimum stock level *</label><input type="number" name="minimumStockLevel" value="10" required="required" min="0"/></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn" type="submit">Save Medicine</button>
+            <a class="btn secondary" href="/inventory">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>GramCare — Facility</title><link rel="stylesheet" th:href="@{/css/styles.css}"/></head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Facility Inspections')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+      <div class="card" th:if="${facility != null}">
+        <h2 th:text="${facility.facilityName}"></h2>
+        <p><strong>Village:</strong> <span th:text="${facility.village}"></span> &nbsp; <strong>Type:</strong> <span th:text="${facility.facilityType}"></span>
+           &nbsp; <strong>Current cleanliness:</strong> <span th:text="${facility.cleanlinessStatus}"></span></p>
+      </div>
+      <div class="card">
+        <h3>Inspection history</h3>
+        <table class="data-table"><thead><tr><th>Date</th><th>Inspected by</th><th>Status</th><th>Remarks</th></tr></thead>
+          <tbody><tr th:each="i : ${inspections}"><td th:text="${i.inspectionDate}"></td><td th:text="${i.inspectedBy}"></td><td th:text="${i.observedStatus}"></td><td th:text="${i.remarks}"></td></tr></tbody>
+        </table>
+        <p class="empty-state" th:if="${inspections == null or #lists.isEmpty(inspections)}">No inspections recorded yet.</p>
+        <h4>Record inspection</h4>
+        <form method="post" th:action="@{'/sanitation/facilities/' + ${facility.id} + '/inspections'}" class="validated-form">
+          <div class="form-grid">
+            <div class="form-group"><label>Date *</label><input type="date" name="inspectionDate" required="required"/></div>
+            <div class="form-group"><label>Inspected by</label><input type="text" name="inspectedBy"/></div>
+            <div class="form-group"><label>Observed status *</label>
+              <select name="observedStatus" required="required">
+                <option value="EXCELLENT">Excellent</option><option value="SATISFACTORY">Satisfactory</option>
+                <option value="NEEDS_ATTENTION">Needs attention</option><option value="POOR">Poor</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label>Remarks</label><input type="text" name="remarks"/></div>
+          <button class="btn" type="submit">Save Inspection</button>
+        </form>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

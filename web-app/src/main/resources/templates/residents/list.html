@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>GramCare — Residents</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Resident Management')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+
+      <div class="quick-actions">
+        <a class="btn" href="/residents/new">+ Add Resident</a>
+      </div>
+
+      <div class="card">
+        <form class="filter-bar" method="get" th:action="@{/residents}">
+          <div class="form-group">
+            <label>Search by name</label>
+            <input type="text" name="name" th:value="${nameFilter}" placeholder="Resident name"/>
+          </div>
+          <div class="form-group">
+            <label>Filter by village</label>
+            <input type="text" name="village" th:value="${villageFilter}" placeholder="Village"/>
+          </div>
+          <button class="btn secondary" type="submit">Search</button>
+          <a class="btn secondary" href="/residents">Clear</a>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Village</th><th>Gender</th><th>Contact</th><th>Visits</th><th></th></tr></thead>
+            <tbody>
+              <tr th:each="r : ${residents}">
+                <td th:text="${r.fullName}">Name</td>
+                <td th:text="${r.village}">Village</td>
+                <td th:text="${r.gender}">Gender</td>
+                <td th:text="${r.contactPhone}">Phone</td>
+                <td th:text="${r.visitCount}">0</td>
+                <td><a th:href="@{'/residents/' + ${r.id}}">View</a> · <a th:href="@{'/residents/' + ${r.id} + '/edit'}">Edit</a></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="empty-state" th:if="${residents == null or #lists.isEmpty(residents)}">No residents found. Try a different search, or add a new resident.</p>
+        </div>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

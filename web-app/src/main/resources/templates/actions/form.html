@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>GramCare — Report Issue</title><link rel="stylesheet" th:href="@{/css/styles.css}"/></head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Report a Health Issue')}"></div>
+    <div class="content">
+      <div class="card" style="max-width:720px;">
+        <p style="margin-top:0;color:#5b6b7c;font-size:0.88rem;">Use this for general health or health-camp issues. Sanitation complaints, water-quality readings and medicine shortages have their own forms so the original record is kept in the right service.</p>
+        <div class="alert alert-error form-validation-banner" style="display:none;"></div>
+        <form class="validated-form" method="post" th:action="@{/actions}">
+          <input type="hidden" name="formToken" th:value="${formToken}"/>
+          <div class="form-group"><label for="title">Title *</label><input id="title" type="text" name="title" required="required"/></div>
+          <div class="form-group"><label for="description">Description</label><textarea id="description" name="description" rows="3"></textarea></div>
+          <div class="form-grid">
+            <div class="form-group"><label for="category">Category *</label>
+              <select id="category" name="category" required="required"><option value="GENERAL_HEALTH">General health</option><option value="HEALTH_CAMP">Health camp</option></select></div>
+            <div class="form-group"><label for="village">Village</label><input id="village" type="text" name="village"/></div>
+            <div class="form-group"><label for="priority">Priority</label>
+              <select id="priority" name="priority"><option value="LOW">Low</option><option value="MEDIUM" selected="selected">Medium</option><option value="HIGH">High</option><option value="CRITICAL">Critical</option></select></div>
+            <div class="form-group"><label for="dueDate">Due date</label><input id="dueDate" type="date" name="dueDate"/><span class="hint">Blank = set from priority</span></div>
+            <div class="form-group"><label for="reportedBy">Reported by</label><input id="reportedBy" type="text" name="reportedBy" th:value="${demoRole}"/></div>
+          </div>
+          <div class="btn-row"><button class="btn" type="submit">Create Action Item</button><a class="btn secondary" href="/actions">Cancel</a></div>
+        </form>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

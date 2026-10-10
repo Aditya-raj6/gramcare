@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>GramCare — Sign in</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+  <style>
+    body { display:flex; align-items:center; justify-content:center; min-height:100vh; background: linear-gradient(135deg, #0b2545, #0f9d8c); }
+    .login-card { background:#fff; border-radius:14px; padding:36px 40px; width:420px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+    .login-card h1 { color:#0b2545; margin-bottom:4px; }
+    .login-card p.tagline { color:#5b6b7c; margin-top:0; margin-bottom:22px; font-size:0.9rem; }
+    .role-option { border:1px solid #e1e8ef; border-radius:8px; padding:12px 14px; margin-bottom:10px; display:flex; align-items:center; gap:12px; cursor:pointer; }
+    .role-option:hover { border-color:#0f9d8c; background:#aad1cb; }
+    .role-option input { margin:0; }
+    .disclaimer { font-size:0.76rem; color:#5b6b7c; margin-top:16px; line-height:1.4; }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <h1>GramCare</h1>
+    <p class="tagline">One Village. One Connected Health &amp; Sanitation System.</p>
+
+    <form th:action="@{/login}" method="post">
+      <label class="role-option">
+        <input type="radio" name="role" value="Health Worker" checked="checked"/>
+        <div><strong>Health Worker</strong><div style="font-size:0.78rem;color:#5b6b7c;">Register residents, log visits, report issues</div></div>
+      </label>
+      <label class="role-option">
+        <input type="radio" name="role" value="Inventory Manager"/>
+        <div><strong>Inventory Manager</strong><div style="font-size:0.78rem;color:#5b6b7c;">Manage medicine stock and replenishment</div></div>
+      </label>
+      <label class="role-option">
+        <input type="radio" name="role" value="Sanitation Officer"/>
+        <div><strong>Sanitation Officer</strong><div style="font-size:0.78rem;color:#5b6b7c;">Manage facilities, complaints, water quality</div></div>
+      </label>
+      <label class="role-option">
+        <input type="radio" name="role" value="Administrator"/>
+        <div><strong>Administrator</strong><div style="font-size:0.78rem;color:#5b6b7c;">Full access, dashboards and reports</div></div>
+      </label>
+
+      <button type="submit" class="btn" style="width:100%;margin-top:10px;">Continue to Dashboard</button>
+    </form>
+
+    <p class="disclaimer">
+      This is a hackathon demonstration mode: picking a role only labels your session for this demo and
+      does not check a password. It is not secure authentication or authorization, and a production
+      deployment would need a real identity provider and per-role access control behind each API.
+    </p>
+  </div>
+</body>
+</html>

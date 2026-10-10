@@ -1,0 +1,29 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Eclipse / Spring Tools for Eclipse
+.project
+.classpath
+.settings/
+.metadata/
+.factorypath
+.springBeans
+.sts4-cache/
+bin/
+
+# IntelliJ / VS Code
+.idea/
+*.iml
+.vscode/
+
+# Logs and OS files
+*.log
+logs/
+.DS_Store
+Thumbs.db
+
+# Local overrides that may contain credentials - never commit
+application-local.properties
+*.env
+.env

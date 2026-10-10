@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>GramCare — Beneficiary</title><link rel="stylesheet" th:href="@{/css/styles.css}"/></head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Screenings & Follow-up')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+      <p><a th:href="@{'/camps/' + ${campId}}">&larr; Back to camp</a></p>
+
+      <div class="card">
+        <h3>Screening Records</h3>
+        <table class="data-table"><thead><tr><th>Type</th><th>Result</th><th>Remarks</th><th>Referral?</th></tr></thead>
+          <tbody>
+            <tr th:each="s : ${screenings}">
+              <td th:text="${s.screeningType}"></td><td th:text="${s.result}"></td><td th:text="${s.remarks}"></td>
+              <td th:text="${s.referralNeeded} ? 'Yes' : 'No'"></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="empty-state" th:if="${screenings == null or #lists.isEmpty(screenings)}">No screenings recorded yet.</p>
+        <form method="post" th:action="@{'/camps/beneficiaries/' + ${beneficiaryId} + '/screenings'}" class="validated-form">
+          <input type="hidden" name="campId" th:value="${campId}"/>
+          <div class="form-grid">
+            <div class="form-group"><label>Screening type *</label><input type="text" name="screeningType" required="required"/></div>
+            <div class="form-group"><label>Result</label><input type="text" name="result"/></div>
+            <div class="form-group"><label><input type="checkbox" name="referralNeeded"/> Referral needed</label></div>
+          </div>
+          <div class="form-group"><label>Remarks</label><textarea name="remarks" rows="2"></textarea></div>
+          <button class="btn secondary" type="submit">Add Screening</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>Follow-up</h3>
+        <table class="data-table"><thead><tr><th>Scheduled date</th><th>Completed</th><th>Notes</th></tr></thead>
+          <tbody><tr th:each="f : ${followUps}"><td th:text="${f.scheduledDate}"></td><td th:text="${f.completed} ? 'Yes' : 'No'"></td><td th:text="${f.notes}"></td></tr></tbody>
+        </table>
+        <p class="empty-state" th:if="${followUps == null or #lists.isEmpty(followUps)}">No follow-up scheduled yet.</p>
+        <form method="post" th:action="@{'/camps/beneficiaries/' + ${beneficiaryId} + '/follow-ups'}" class="validated-form">
+          <input type="hidden" name="campId" th:value="${campId}"/>
+          <div class="form-grid">
+            <div class="form-group"><label>Scheduled date</label><input type="date" name="scheduledDate"/></div>
+          </div>
+          <div class="form-group"><label>Notes</label><input type="text" name="notes"/></div>
+          <button class="btn secondary" type="submit">Add Follow-up</button>
+        </form>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

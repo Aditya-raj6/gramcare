@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>GramCare — Action Centre</title><link rel="stylesheet" th:href="@{/css/styles.css}"/></head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Unified Action Centre')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+      <div class="quick-actions">
+        <a class="btn" href="/actions/new">+ Report Other Health Issue</a>
+        <a class="btn secondary" href="/sanitation/complaints/new">Report Sanitation Issue</a>
+        <a class="btn secondary" href="/inventory/replenishment/new">Report Medicine Shortage</a>
+      </div>
+      <div class="card">
+        <form class="filter-bar" method="get" th:action="@{/actions}">
+          <div class="form-group"><label for="q">Search</label><input id="q" type="text" name="q" th:value="${q}" placeholder="Title, description or ID"/></div>
+          <div class="form-group"><label for="category">Category</label>
+            <select id="category" name="category"><option value="">All</option>
+              <option th:each="c : ${actionCategories}" th:value="${c}" th:text="${c}" th:selected="${c == category}"></option>
+            </select></div>
+          <div class="form-group"><label for="village">Village</label>
+            <select id="village" name="village"><option value="">All</option>
+              <option th:each="v : ${villages}" th:value="${v}" th:text="${v}" th:selected="${v == village}"></option>
+            </select></div>
+          <div class="form-group"><label for="priority">Priority</label>
+            <select id="priority" name="priority"><option value="">All</option>
+              <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}" th:selected="${p == priority}"></option>
+            </select></div>
+          <div class="form-group"><label for="status">Status</label>
+            <select id="status" name="status"><option value="">All</option>
+              <option th:each="s : ${actionStatuses}" th:value="${s}" th:text="${s}" th:selected="${s == status}"></option>
+            </select></div>
+          <div class="form-group"><label for="assignee">Assigned to</label><input id="assignee" type="text" name="assignee" th:value="${assignee}" placeholder="Person or department"/></div>
+          <div class="form-group"><label><input type="checkbox" name="overdueOnly" value="true" th:checked="${overdueOnly}"/> Overdue only</label></div>
+          <button class="btn" type="submit">Apply</button>
+          <a class="btn secondary" href="/actions">Reset</a>
+        </form>
+        <p style="font-size:0.82rem;color:#5b6b7c;margin:0;">Showing <strong th:text="${#lists.size(actions)}">0</strong> of <span th:text="${totalCount}">0</span> action items, most urgent first.</p>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Title</th><th>Category</th><th>Village</th><th>Priority</th><th>Status</th><th>Assigned</th><th>Due</th></tr></thead>
+          <tbody>
+            <tr th:each="a : ${actions}">
+              <td th:text="${a.id}"></td>
+              <td><a th:href="@{'/actions/' + ${a.id}}" th:text="${a.title}"></a></td>
+              <td th:text="${a.category}"></td>
+              <td th:text="${a.village} ?: '—'"></td>
+              <td><span class="badge" th:classappend="'prio-' + ${#strings.toLowerCase(a.priority)}" th:text="${a.priority}"></span></td>
+              <td><span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(a.status)}" th:text="${a.status}"></span></td>
+              <td th:text="${a.assignedPerson != null ? a.assignedPerson + ' (' + a.assignedDepartment + ')' : (a.assignedDepartment ?: 'Unassigned')}"></td>
+              <td>
+                <span th:text="${a.dueDate} ?: '—'"></span>
+                <span class="badge badge-critical" th:if="${a.overdue}">Overdue</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <p class="empty-state" th:if="${actions == null or #lists.isEmpty(actions)}">No action items match these filters.</p>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

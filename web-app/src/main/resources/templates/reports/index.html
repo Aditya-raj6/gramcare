@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>GramCare — Reports</title><link rel="stylesheet" th:href="@{/css/styles.css}"/></head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Consolidated Reports')}"></div>
+    <div class="content">
+      <div class="alert alert-error" th:if="${!#lists.isEmpty(unavailable)}">
+        Some sections could not be loaded because their service is not responding:
+        <strong th:text="${#strings.listJoin(unavailable, ', ')}"></strong>. Figures for those sections show as zero.
+      </div>
+
+      <div class="card">
+        <form class="filter-bar" method="get" th:action="@{/reports}">
+          <div class="form-group"><label for="from">From</label><input id="from" type="date" name="from" th:value="${from}"/></div>
+          <div class="form-group"><label for="to">To</label><input id="to" type="date" name="to" th:value="${to}"/></div>
+          <div class="form-group"><label for="category">Action category</label>
+            <select id="category" name="category"><option value="">All</option>
+              <option th:each="c : ${actionCategories}" th:value="${c}" th:text="${c}" th:selected="${c == category}"></option>
+            </select></div>
+          <button class="btn" type="submit">Run Report</button>
+          <button class="btn secondary" type="button" onclick="window.print()">Print</button>
+        </form>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card"><div class="value" th:text="${residentTotal}">0</div><div class="label">Residents registered in period</div></div>
+        <div class="summary-card"><div class="value" th:text="${appointmentTotal}">0</div><div class="label">Appointments in period</div></div>
+        <div class="summary-card alert"><div class="value" th:text="${lowStockCount}">0</div><div class="label">Medicines below minimum (now)</div></div>
+        <div class="summary-card warn"><div class="value" th:text="${complaintTotal}">0</div><div class="label">Sanitation complaints</div></div>
+        <div class="summary-card"><div class="value" th:text="${observationsFlagged} + ' / ' + ${observationTotal}">0</div><div class="label">Water observations flagged</div></div>
+        <div class="summary-card"><div class="value" th:text="${actionsOpen} + ' / ' + ${actionsResolved}">0</div><div class="label">Actions open / resolved</div></div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:18px;">
+        <div class="card">
+          <h3>Actions by category</h3>
+          <div th:each="e : ${actionsByCategory}" class="bar-row">
+            <span class="bar-label" th:text="${e.key}"></span>
+            <span class="bar-track"><span class="bar-fill" th:style="'width:' + ${actionTotal == 0 ? 0 : e.value * 100 / actionTotal} + '%'"></span></span>
+            <span class="bar-value" th:text="${e.value}"></span>
+          </div>
+          <p class="empty-state" th:if="${#maps.isEmpty(actionsByCategory)}">No actions in this period.</p>
+        </div>
+        <div class="card">
+          <h3>Actions by status</h3>
+          <div th:each="e : ${actionsByStatus}" class="bar-row">
+            <span class="bar-label" th:text="${e.key}"></span>
+            <span class="bar-track"><span class="bar-fill" th:style="'width:' + ${actionTotal == 0 ? 0 : e.value * 100 / actionTotal} + '%'"></span></span>
+            <span class="bar-value" th:text="${e.value}"></span>
+          </div>
+          <p class="empty-state" th:if="${#maps.isEmpty(actionsByStatus)}">No actions in this period.</p>
+        </div>
+        <div class="card">
+          <h3>Actions by village</h3>
+          <table class="data-table"><tbody><tr th:each="e : ${actionsByVillage}"><td th:text="${e.key}"></td><td th:text="${e.value}"></td></tr></tbody></table>
+        </div>
+        <div class="card">
+          <h3>Resident registrations by village</h3>
+          <table class="data-table"><tbody><tr th:each="e : ${residentsByVillage}"><td th:text="${e.key}"></td><td th:text="${e.value}"></td></tr></tbody></table>
+          <p class="empty-state" th:if="${#maps.isEmpty(residentsByVillage)}">None in this period.</p>
+        </div>
+        <div class="card">
+          <h3>Appointment activity</h3>
+          <table class="data-table"><tbody><tr th:each="e : ${appointmentsByStatus}"><td th:text="${e.key}"></td><td th:text="${e.value}"></td></tr></tbody></table>
+          <p class="empty-state" th:if="${#maps.isEmpty(appointmentsByStatus)}">None in this period.</p>
+        </div>
+        <div class="card">
+          <h3>Sanitation complaints by status</h3>
+          <table class="data-table"><tbody><tr th:each="e : ${complaintsByStatus}"><td th:text="${e.key}"></td><td th:text="${e.value}"></td></tr></tbody></table>
+          <p class="empty-state" th:if="${#maps.isEmpty(complaintsByStatus)}">None in this period.</p>
+        </div>
+        <div class="card">
+          <h3>Water observations by village</h3>
+          <table class="data-table"><tbody><tr th:each="e : ${observationsByVillage}"><td th:text="${e.key}"></td><td th:text="${e.value}"></td></tr></tbody></table>
+          <p class="empty-state" th:if="${#maps.isEmpty(observationsByVillage)}">None in this period.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Medicine stock and shortages</h3>
+        <table class="data-table">
+          <thead><tr><th>Medicine</th><th>Category</th><th>Stock</th><th>Minimum</th><th>Status</th></tr></thead>
+          <tbody><tr th:each="m : ${medicines}"><td th:text="${m.name}"></td><td th:text="${m.category}"></td><td th:text="${m.totalQuantity}"></td><td th:text="${m.minimumStockLevel}"></td>
+            <td><span class="badge" th:classappend="${m.lowStock} ? 'badge-danger' : 'badge-ok'" th:text="${m.lowStock} ? 'Shortage' : 'OK'"></span></td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Health camps and beneficiaries</h3>
+        <table class="data-table">
+          <thead><tr><th>Camp</th><th>Village</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody><tr th:each="c : ${camps}"><td><a th:href="@{'/camps/' + ${c.id}}" th:text="${c.campName}"></a></td><td th:text="${c.village}"></td><td th:text="${c.campDate}"></td><td th:text="${c.status}"></td></tr></tbody>
+        </table>
+        <p class="empty-state" th:if="${#lists.isEmpty(camps)}">No camps in this period.</p>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

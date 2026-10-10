@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>GramCare — Resident Profile</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Resident Profile')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+
+      <div class="card">
+        <h2 th:text="${resident.fullName}">Name</h2>
+        <div class="form-grid">
+          <div><strong>Village:</strong> <span th:text="${resident.village}"></span></div>
+          <div><strong>Gender:</strong> <span th:text="${resident.gender}"></span></div>
+          <div><strong>Date of birth:</strong> <span th:text="${resident.dateOfBirth}"></span></div>
+          <div><strong>Contact:</strong> <span th:text="${resident.contactPhone}"></span></div>
+          <div><strong>Blood group:</strong> <span th:text="${resident.bloodGroup}"></span></div>
+        </div>
+        <p th:if="${resident.knownAllergies}"><strong>Known allergies:</strong> <span th:text="${resident.knownAllergies}"></span></p>
+        <p th:if="${resident.chronicConditions}"><strong>Chronic conditions:</strong> <span th:text="${resident.chronicConditions}"></span></p>
+        <a class="btn secondary" th:href="@{'/residents/' + ${resident.id} + '/edit'}">Edit Resident</a>
+      </div>
+
+      <div class="card">
+        <h3>Medical visit history</h3>
+        <table class="data-table">
+          <thead><tr><th>Date</th><th>Reason</th><th>Diagnosis</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr th:each="v : ${visits}">
+              <td th:text="${v.visitDate}">Date</td>
+              <td th:text="${v.reasonForVisit}">Reason</td>
+              <td th:text="${v.diagnosisSummary}">Diagnosis</td>
+              <td th:text="${v.notes}">Notes</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="empty-state" th:if="${visits == null or #lists.isEmpty(visits)}">No visits recorded yet.</p>
+
+        <h3 style="margin-top:18px;">Add a visit record</h3>
+        <form method="post" th:action="@{'/residents/' + ${resident.id} + '/visits'}" class="validated-form">
+          <div class="form-grid">
+            <div class="form-group"><label>Visit date *</label><input type="date" name="visitDate" required="required"/></div>
+            <div class="form-group"><label>Reason for visit</label><input type="text" name="reasonForVisit"/></div>
+          </div>
+          <div class="form-group"><label>Diagnosis summary</label><input type="text" name="diagnosisSummary"/></div>
+          <div class="form-group"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+          <button class="btn" type="submit">Add Visit</button>
+        </form>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

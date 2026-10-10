@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>GramCare — Record Water Observation</title><link rel="stylesheet" th:href="@{/css/styles.css}"/></head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Record Water-Quality Observation')}"></div>
+    <div class="content">
+      <div class="card" style="max-width:720px;">
+        <div class="alert alert-error form-validation-banner" style="display:none;"></div>
+        <form class="validated-form" method="post" th:action="@{/water-quality}">
+          <div class="form-grid">
+            <div class="form-group"><label>Village *</label><input type="text" name="village" required="required"/></div>
+            <div class="form-group"><label>Water source *</label><input type="text" name="waterSourceName" required="required" placeholder="e.g. Hand pump 3"/></div>
+            <div class="form-group"><label>Observation date *</label><input type="date" name="observationDate" required="required"/></div>
+            <div class="form-group"><label>Recorded by</label><input type="text" name="recordedBy" th:value="${demoRole}"/></div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label>pH</label><input type="number" step="0.01" min="0" max="14" name="ph"/><span class="hint">Reference 6.5 – 8.5</span></div>
+            <div class="form-group"><label>Turbidity (NTU)</label><input type="number" step="0.01" min="0" name="turbidityNtu"/><span class="hint">Reference ≤ 5</span></div>
+            <div class="form-group"><label>Residual chlorine (mg/L)</label><input type="number" step="0.01" min="0" name="residualChlorineMgL"/><span class="hint">Reference ≥ 0.2</span></div>
+          </div>
+          <div class="form-group"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+          <p class="hint" style="font-size:0.8rem;color:#5b6b7c;">Out-of-range readings are flagged for review and create a linked item in the Action Centre.</p>
+          <div class="btn-row"><button class="btn" type="submit">Save Observation</button><a class="btn secondary" href="/water-quality">Cancel</a></div>
+        </form>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

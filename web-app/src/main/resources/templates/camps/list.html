@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>GramCare — Health Camps</title><link rel="stylesheet" th:href="@{/css/styles.css}"/></head>
+<body>
+<div class="app-shell">
+  <div th:replace="~{fragments/layout :: sidebar}"></div>
+  <div class="main-area">
+    <div th:replace="~{fragments/layout :: topbar('Health Camp Management')}"></div>
+    <div class="content">
+      <div th:replace="~{fragments/layout :: serviceErrorBanner}"></div>
+      <div class="quick-actions"><a class="btn" href="/camps/new">+ Schedule Camp</a></div>
+      <div class="card">
+        <table class="data-table">
+          <thead><tr><th>Camp</th><th>Village</th><th>Date</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr th:each="c : ${camps}">
+              <td th:text="${c.campName}">Name</td>
+              <td th:text="${c.village}">Village</td>
+              <td th:text="${c.campDate}">Date</td>
+              <td><span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(c.status)}" th:text="${c.status}">Status</span></td>
+              <td><a th:href="@{'/camps/' + ${c.id}}">Manage</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="empty-state" th:if="${camps == null or #lists.isEmpty(camps)}">No health camps scheduled yet.</p>
+      </div>
+    </div>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
