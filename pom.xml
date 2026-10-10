@@ -37,6 +37,9 @@
         <spring-cloud.version>2024.0.1</spring-cloud.version>
         <springdoc.version>2.8.6</springdoc.version>
         <jjwt.version>0.12.6</jjwt.version>
+        <!-- Newer than the Boot defaults so the project also builds and runs on JDK 25 -->
+        <lombok.version>1.18.42</lombok.version>
+        <byte-buddy.version>1.17.7</byte-buddy.version>
     </properties>
 
     <dependencyManagement>

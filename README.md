@@ -89,14 +89,25 @@ docker compose up --build
 Then open **http://localhost:3000**. The compose file starts PostgreSQL (and creates the 9 databases from `database/init`), Eureka, the gateway, the 9 services and the nginx-served UI. On first start, wait about 1–2 minutes for every service to register with Eureka.
 
 ### Option B: Local JVMs (for development)
-Prerequisites: JDK 21, Maven 3.9+, Node 18+, PostgreSQL 16.
+Prerequisites: JDK 21 or newer (tested on 21; built to also run on 25), Node 18+, PostgreSQL 16 (optional, see below).
+Maven does **not** need to be installed: use the bundled wrapper (`./mvnw` on Mac/Linux, `.\mvnw.cmd` on Windows).
+
+**Windows (PowerShell):**
+```powershell
+.\mvnw.cmd -DskipTests package
+.\scripts\start-all.ps1 h2            # omit "h2" to use PostgreSQL; stop with .\scripts\stop-all.ps1
+cd frontend; npm install; npm run dev   # http://localhost:5173
+```
+If PowerShell blocks the script, run `Set-ExecutionPolicy -Scope Process Bypass` first.
+
+**Mac / Linux:**
 
 ```bash
 # 1. Databases (creates role healthharbor/healthharbor and hh_* databases)
 psql -U postgres -f database/init/01-create-databases.sql
 
 # 2. Build and start the backend (Eureka first, then the services and the gateway)
-mvn -DskipTests package
+./mvnw -DskipTests package
 scripts/start-all.sh                 # logs in ./logs, stop with scripts/stop-all.sh
 
 # 3. Frontend (Vite proxies /api to the gateway on :8080)
