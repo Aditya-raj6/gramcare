@@ -9,12 +9,12 @@ $LogDir = Join-Path $Root "logs"
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 $JavaOpts = @("-Xms64m", "-Xmx256m", "-XX:+UseSerialGC", "-XX:TieredStopAtLevel=1")
 
-function Start-Service([string]$Name) {
+function Start-HHService([string]$Name) {
     $jar = Join-Path $Root "$Name\target\$Name-1.0.0.jar"
     if (-not (Test-Path $jar)) { throw "$jar not found - run: .\mvnw.cmd -DskipTests package" }
-    $args = $JavaOpts + @("-jar", $jar)
-    if ($Profile) { $args += "--spring.profiles.active=$Profile" }
-    $p = Start-Process java -ArgumentList $args -WorkingDirectory (Join-Path $Root $Name) -WindowStyle Hidden `
+    $javaArgs = $JavaOpts + @("-jar", $jar)
+    if ($Profile) { $javaArgs += "--spring.profiles.active=$Profile" }
+    $p = Start-Process java -ArgumentList $javaArgs -WorkingDirectory (Join-Path $Root $Name) -WindowStyle Hidden `
         -RedirectStandardOutput (Join-Path $LogDir "$Name.log") -RedirectStandardError (Join-Path $LogDir "$Name.err.log") -PassThru
     Set-Content -Path (Join-Path $LogDir "$Name.pid") -Value $p.Id
     Write-Host "started $Name (pid $($p.Id))"
@@ -27,11 +27,11 @@ function Wait-For([string]$Url, [string]$Name) {
     Write-Host "  $Name did not become healthy - see logs\$Name.log"
 }
 
-Start-Service "discovery-server"
+Start-HHService "discovery-server"
 Wait-For "http://localhost:8761/actuator/health" "discovery-server"
 foreach ($svc in "auth-service", "patient-service", "healthcenter-service", "appointment-service", "inventory-service",
                  "healthcamp-service", "sanitation-service", "water-service", "dashboard-service", "api-gateway") {
-    Start-Service $svc
+    Start-HHService $svc
 }
 Wait-For "http://localhost:8080/actuator/health" "api-gateway"
 Write-Host "All services launched. Gateway: http://localhost:8080  Eureka: http://localhost:8761  Logs: $LogDir"
