@@ -1,0 +1,46 @@
+package com.gramcare.sanitation.dto;
+
+import java.time.LocalDate;
+
+/**
+ * Payload sent to the Action Tracking Service (POST /api/actions) to create a
+ * linked action item. sourceService + sourceReferenceType + sourceReferenceId
+ * together form the idempotency key the Action Tracking Service uses to avoid
+ * creating duplicate action items if this call is retried.
+ */
+public class ActionItemRequest {
+    private String title;
+    private String description;
+    private String category;
+    private String village;
+    private Long healthCentreId;
+    private String priority;
+    private String reportedBy;
+    private String sourceService;
+    private String sourceReferenceType;
+    private Long sourceReferenceId;
+    private LocalDate dueDate;
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+    public String getVillage() { return village; }
+    public void setVillage(String village) { this.village = village; }
+    public Long getHealthCentreId() { return healthCentreId; }
+    public void setHealthCentreId(Long healthCentreId) { this.healthCentreId = healthCentreId; }
+    public String getPriority() { return priority; }
+    public void setPriority(String priority) { this.priority = priority; }
+    public String getReportedBy() { return reportedBy; }
+    public void setReportedBy(String reportedBy) { this.reportedBy = reportedBy; }
+    public String getSourceService() { return sourceService; }
+    public void setSourceService(String sourceService) { this.sourceService = sourceService; }
+    public String getSourceReferenceType() { return sourceReferenceType; }
+    public void setSourceReferenceType(String sourceReferenceType) { this.sourceReferenceType = sourceReferenceType; }
+    public Long getSourceReferenceId() { return sourceReferenceId; }
+    public void setSourceReferenceId(Long sourceReferenceId) { this.sourceReferenceId = sourceReferenceId; }
+    public LocalDate getDueDate() { return dueDate; }
+    public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
+}
