@@ -1,0 +1,76 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    loadbalancer:
+      cache:
+        ttl: 5s
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origin-patterns: ${CORS_ORIGINS:http://localhost:*,http://127.0.0.1:*}
+            allowed-methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+            allowed-headers: "*"
+            allow-credentials: true
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**,/api/users/**
+        - id: patient-service
+          uri: lb://patient-service
+          predicates:
+            - Path=/api/residents/**,/api/medical-records/**,/api/visits/**
+        - id: healthcenter-service
+          uri: lb://healthcenter-service
+          predicates:
+            - Path=/api/health-centres/**,/api/facilities/**,/api/health-workers/**,/api/centre-services/**,/api/schedules/**
+        - id: appointment-service
+          uri: lb://appointment-service
+          predicates:
+            - Path=/api/appointments/**,/api/consultations/**
+        - id: inventory-service
+          uri: lb://inventory-service
+          predicates:
+            - Path=/api/medicines/**,/api/stock/**,/api/stock-transactions/**,/api/replenishments/**,/api/inventory/**
+        - id: healthcamp-service
+          uri: lb://healthcamp-service
+          predicates:
+            - Path=/api/health-camps/**,/api/camp-staff/**,/api/beneficiaries/**,/api/screenings/**,/api/follow-ups/**
+        - id: sanitation-service
+          uri: lb://sanitation-service
+          predicates:
+            - Path=/api/sanitation/**
+        - id: water-service
+          uri: lb://water-service
+          predicates:
+            - Path=/api/water/**
+        - id: dashboard-service
+          uri: lb://dashboard-service
+          predicates:
+            - Path=/api/dashboard/**,/api/field-reports/**
+
+healthharbor:
+  jwt:
+    secret: ${JWT_SECRET:HealthHarbor-Team17-Rural-Health-Sanitation-Platform-Secret-Key-2026}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: ${EUREKA_PREFER_IP:false}
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:localhost}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
