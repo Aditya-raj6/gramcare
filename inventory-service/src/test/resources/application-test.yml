@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:inventory-test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+healthharbor:
+  seed-data: false
+eureka:
+  client:
+    enabled: false

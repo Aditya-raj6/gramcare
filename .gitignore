@@ -1,0 +1,17 @@
+# Build output
+target/
+frontend/dist/
+frontend/node_modules/
+
+# Runtime
+logs/
+data/
+*/data/
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+*.zip

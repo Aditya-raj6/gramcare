@@ -1,0 +1,202 @@
+# HealthHarbor - full stack: PostgreSQL + Eureka + Gateway + 9 microservices + React UI
+#   docker compose up --build        then open http://localhost:3000
+x-service: &service
+  build:
+    context: .
+    dockerfile: Dockerfile
+  restart: unless-stopped
+  environment: &env
+    EUREKA_URL: http://discovery-server:8761/eureka
+    EUREKA_PREFER_IP: "true"
+    DB_HOST: postgres
+    DB_PORT: "5432"
+    DB_USERNAME: healthharbor
+    DB_PASSWORD: healthharbor
+    JWT_SECRET: ${JWT_SECRET:-HealthHarbor-Team17-Rural-Health-Sanitation-Platform-Secret-Key-2026}
+  depends_on:
+    postgres:
+      condition: service_healthy
+    discovery-server:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres && psql -U postgres -tAc \"select 1 from pg_database where datname='hh_dashboard'\" | grep -q 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  discovery-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: discovery-server
+    restart: unless-stopped
+    environment:
+      EUREKA_HOSTNAME: discovery-server
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8761' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  api-gateway:
+    <<: *service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: api-gateway
+    environment:
+      EUREKA_URL: http://discovery-server:8761/eureka
+      EUREKA_PREFER_IP: "true"
+      JWT_SECRET: ${JWT_SECRET:-HealthHarbor-Team17-Rural-Health-Sanitation-Platform-Secret-Key-2026}
+      CORS_ORIGINS: http://localhost:*
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  auth-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: auth-service
+    environment:
+      <<: *env
+      DB_NAME: hh_auth
+    expose:
+      - "8081"
+
+  patient-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: patient-service
+    environment:
+      <<: *env
+      DB_NAME: hh_patient
+    expose:
+      - "8082"
+
+  healthcenter-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: healthcenter-service
+    environment:
+      <<: *env
+      DB_NAME: hh_healthcenter
+    expose:
+      - "8083"
+
+  appointment-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: appointment-service
+    environment:
+      <<: *env
+      DB_NAME: hh_appointment
+    expose:
+      - "8084"
+
+  inventory-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: inventory-service
+    environment:
+      <<: *env
+      DB_NAME: hh_inventory
+    expose:
+      - "8085"
+
+  healthcamp-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: healthcamp-service
+    environment:
+      <<: *env
+      DB_NAME: hh_healthcamp
+    expose:
+      - "8086"
+
+  sanitation-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: sanitation-service
+    environment:
+      <<: *env
+      DB_NAME: hh_sanitation
+    expose:
+      - "8087"
+
+  water-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: water-service
+    environment:
+      <<: *env
+      DB_NAME: hh_water
+    expose:
+      - "8088"
+
+  dashboard-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: dashboard-service
+    environment:
+      <<: *env
+      DB_NAME: hh_dashboard
+    expose:
+      - "8089"
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - api-gateway
+    ports:
+      - "3000:80"
+
+volumes:
+  pgdata:

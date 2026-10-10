@@ -1,0 +1,6 @@
+**/target
+frontend
+logs
+data
+**/data
+.git
